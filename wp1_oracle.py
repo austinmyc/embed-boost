@@ -477,6 +477,91 @@ def optimize_arm(enc, q_ids_tok, C, positives, n_slots, trainable, scale,
 # --------------------------------------------------------------------------- #
 
 
+def optimize_global(enc, q_tok, C, positives, n_slots, trainable, scale, steps, lr,
+                    temp, batch_size, free_norm, seed=0, loss_mode="mean",
+                    frozen=None, label=""):
+    """One steering block shared by EVERY query, fitted on the train split.
+
+    This is the query-level split. A per-query oracle has nothing that crosses
+    the train/test boundary -- s for a test query would have to be fitted using
+    that query's own labels, which is what the within-query holdout could never
+    fully escape (it leaves ~99.7% of the query's relevance labelling visible
+    through the negatives). A single shared vector carries information across
+    queries, so the test queries' labels can be withheld completely.
+
+    Minibatch SGD over train queries rather than full-batch: one shared vector
+    over thousands of queries converges fine and full-batch would cost
+    steps x (Q / batch_size) forward passes.
+    """
+    d, dev = enc.d, enc.device
+    g = torch.Generator().manual_seed(seed)
+    raw = torch.randn(1, n_slots, d, generator=g).to(dev).requires_grad_(True)
+    opt = torch.optim.Adam([raw], lr=lr)
+    scale_t = (float(scale) if isinstance(scale, (int, float)) else
+               torch.tensor([float(x) for x in list(scale)[:n_slots]],
+                            device=dev).view(1, n_slots, 1))
+
+    Q = len(q_tok)
+    rng = np.random.default_rng(seed)
+    order, ptr = rng.permutation(Q), 0
+    t0 = time.time()
+    for step in range(steps):
+        if ptr + batch_size > Q:
+            order, ptr = rng.permutation(Q), 0
+        idx = order[ptr:ptr + batch_size]
+        ptr += batch_size
+        ids = [q_tok[i] for i in idx]
+        pos = [positives[i] for i in idx]
+
+        opt.zero_grad(set_to_none=True)
+        s = _steer_from_raw(raw, scale_t, free_norm)
+        parts = []
+        for k in range(n_slots):
+            if frozen is not None and k in frozen:
+                parts.append(frozen[k].to(dev).view(1, 1, d))
+            elif k in trainable:
+                parts.append(s[:, k:k + 1])
+            else:
+                parts.append(torch.zeros_like(s[:, k:k + 1]))
+        steer = torch.cat(parts, dim=1).expand(len(ids), -1, -1)
+        loss = _nll(enc.forward_ids(ids, steer=steer), C, pos, temp, mode=loss_mode)
+        loss.backward()
+        opt.step()
+
+        if (step + 1) % max(1, steps // 8) == 0:
+            el = time.time() - t0
+            print(f"    [{label}] step {step + 1}/{steps}   loss={loss.item():.4f}   "
+                  f"{el:.0f}s elapsed, ~{el / (step + 1) * (steps - step - 1):.0f}s left")
+
+    return raw.detach()
+
+
+@torch.no_grad()
+def apply_global(enc, q_tok, raw, n_slots, active, scale, free_norm, batch_size,
+                 frozen=None):
+    """Broadcast a fitted global steering block over a query set."""
+    d, dev = enc.d, enc.device
+    scale_t = (float(scale) if isinstance(scale, (int, float)) else
+               torch.tensor([float(x) for x in list(scale)[:n_slots]],
+                            device=dev).view(1, n_slots, 1))
+    s = _steer_from_raw(raw, scale_t, free_norm)
+    parts = []
+    for k in range(n_slots):
+        if frozen is not None and k in frozen:
+            parts.append(frozen[k].to(dev).view(1, 1, d))
+        elif k in active:
+            parts.append(s[:, k:k + 1])
+        else:
+            parts.append(torch.zeros_like(s[:, k:k + 1]))
+    block = torch.cat(parts, dim=1)
+    outs = []
+    for i in range(0, len(q_tok), batch_size):
+        ids = q_tok[i:i + batch_size]
+        outs.append(F.normalize(
+            enc.forward_ids(ids, steer=block.expand(len(ids), -1, -1)), dim=-1).cpu())
+    return torch.cat(outs, dim=0)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--model", default="intfloat/e5-large-v2")
@@ -516,6 +601,15 @@ def main():
                     help="depths at which to also run the joint ceiling "
                          "(default: just K; k=1 is shared with the greedy curve)")
     ap.add_argument("--skip-baseline", action="store_true")
+    ap.add_argument("--global-s", action="store_true",
+                    help="query-level split: fit ONE steering block on --train-split "
+                         "queries, freeze it, evaluate on the test queries whose "
+                         "labels were never touched. The only split with no label "
+                         "leakage into the evaluated queries")
+    ap.add_argument("--train-split", default="train")
+    ap.add_argument("--global-steps", type=int, default=1000,
+                    help="minibatch steps for --global-s (one shared vector needs "
+                         "more steps than a per-query one, but each is cheap)")
     ap.add_argument("--loss", default="mean", choices=["mean", "max"],
                     help="multi-positive reduction. 'max' (logsumexp over positives) "
                          "is minimized by driving ONE positive to rank 1, so it "
@@ -660,6 +754,92 @@ def main():
     common = dict(scale=abs_scales, steps=args.steps, lr=args.lr, temp=args.temp,
                   batch_size=args.batch_size, free_norm=args.free_norm, seed=args.seed,
                   loss_mode=args.loss, held_out=held_out)
+
+    # ---- query-level split: fit a shared block on train, score on test ----- #
+    if args.global_s:
+        K = args.n_stages
+        print(f"\nloading BEIR/{args.dataset} ({args.train_split}) for fitting")
+        _, _, tr_ids, tr_texts, tr_qrels = load_beir(args.dataset, args.train_split)
+        tr_pos = [[did_to_row[d] for d in tr_qrels[q] if d in did_to_row]
+                  for q in tr_ids]
+        kp = [i for i, p in enumerate(tr_pos) if p]
+        tr_texts = [tr_texts[i] for i in kp]
+        tr_pos = [tr_pos[i] for i in kp]
+        overlap = set(tr_ids) & set(q_ids)
+        print(f"  {len(tr_texts)} train queries   {len(q_ids)} test queries   "
+              f"query-id overlap: {len(overlap)}")
+        if overlap:
+            print("  -> WARNING: train and test query ids overlap; the split is "
+                  "not clean and every number below is compromised.")
+        tr_tok = enc.tokenize([args.query_prefix + t for t in tr_texts])
+
+        print("\n" + "=" * 92)
+        print(f"global s, query-level split  (K={K}, {args.global_steps} steps, "
+              f"|s|/tnorm=[{sched}])")
+        print("=" * 92)
+
+        with torch.no_grad():
+            e0 = torch.cat([F.normalize(enc.forward_ids(q_tok[i:i + args.batch_size]),
+                                        dim=-1).cpu()
+                            for i in range(0, len(q_tok), args.batch_size)], dim=0)
+        run_eval("arm0", e0)
+
+        gcommon = dict(scale=abs_scales, steps=args.global_steps, lr=args.lr,
+                       temp=args.temp, batch_size=args.batch_size,
+                       free_norm=args.free_norm, seed=args.seed, loss_mode=args.loss)
+        gfrozen: dict[int, torch.Tensor] = {}
+        for k in range(1, K + 1):
+            t0 = time.time()
+            raw = optimize_global(enc, tr_tok, C, tr_pos, k, {k - 1},
+                                  frozen=dict(gfrozen), label=f"gglobal@{k}", **gcommon)
+            emb = apply_global(enc, q_tok, raw, k, {k - 1}, abs_scales,
+                               args.free_norm, args.batch_size, frozen=dict(gfrozen))
+            run_eval(f"global_greedy@{k}", emb)
+            gfrozen[k - 1] = _steer_from_raw(
+                raw[:, k - 1],
+                (abs_scales[k - 1] if not isinstance(abs_scales, (int, float))
+                 else abs_scales), args.free_norm).squeeze(0)
+            print(f"         [{time.time() - t0:.0f}s]")
+
+        for k in sorted(set(args.joint_at or [K]) - {1}):
+            t0 = time.time()
+            raw = optimize_global(enc, tr_tok, C, tr_pos, k, set(range(k)),
+                                  label=f"jglobal@{k}", **gcommon)
+            emb = apply_global(enc, q_tok, raw, k, set(range(k)), abs_scales,
+                               args.free_norm, args.batch_size)
+            run_eval(f"global_joint@{k}", emb)
+            print(f"         [{time.time() - t0:.0f}s]")
+
+        a = results["arms"]
+        m = "ndcg@10"
+        print("\n" + "=" * 92)
+        print(f"{'depth':<8}{'greedy':>10}{'joint':>10}{'vs arm0':>12}")
+        for k in range(1, K + 1):
+            gk = a.get(f"global_greedy@{k}", {}).get(m)
+            jk = a.get(f"global_joint@{k}", {}).get(m)
+            if gk is not None:
+                print(f"k={k:<6}{gk:>10.4f}{(f'{jk:.4f}' if jk else '--'):>10}"
+                      f"{gk - a['arm0'][m]:>+12.4f}")
+        results["verdict"] = {
+            "transfer_ndcg": a[f"global_greedy@1"][m] - a["arm0"][m],
+            "depth_gain": a[f"global_greedy@{K}"][m] - a["global_greedy@1"][m], "K": K}
+        print("-" * 92)
+        print(f"transfer  global_greedy@1 - arm0   "
+              f"{results['verdict']['transfer_ndcg']:+.4f} nDCG@10")
+        print(f"depth     @{K} - @1                 "
+              f"{results['verdict']['depth_gain']:+.4f}")
+        print("        No test-query labels were used at any point. Unlike the "
+              "oracle arms, these ARE achievable numbers.")
+        print("=" * 92)
+
+        os.makedirs(os.path.dirname(args.out) or ".", exist_ok=True)
+        with open(args.out, "w") as f:
+            json.dump(results, f, indent=2, default=str)
+        print(f"\nwrote {args.out}")
+        print(f"finished {datetime.now():%Y-%m-%d %H:%M:%S} "
+              f"({(time.time() - t_start) / 60:.1f} min total)")
+        return
+
 
     joint_at = sorted(set(args.joint_at or [K]) - {1})   # k=1 shared with greedy
     print("\n" + "=" * 92)
