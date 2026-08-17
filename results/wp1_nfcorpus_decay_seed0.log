@@ -1,0 +1,134 @@
+logging to results/wp1_nfcorpus_decay_seed0.log
+started 2026-08-17 14:40:20
+loading intfloat/e5-large-v2 on cuda (float32)
+Loading weights:   0%|          | 0/391 [00:00<?, ?it/s]Loading weights: 100%|##########| 391/391 [00:00<00:00, 8530.64it/s]
+  d=1024   token_norm=1.4409   |s|/tnorm = [0.5, 0.05, 0.005, 0.0005, 5e-05, 5e-06, 5e-07, 5e-08]
+
+loading BEIR/nfcorpus (test)
+  3633 docs   323 queries
+
+self-check (max abs err, want < 1e-4):
+  [ok  ] identity_vs_hf             0.00e+00
+  [ok  ] batch_invariance           2.44e-06
+  [ok  ] batch_invariance_steered   2.50e-06
+
+loading cached corpus embeddings from results/cache/nfcorpus_intfloat_e5-large-v2_float32.pt
+  corpus matrix (3633, 1024) float32 = 0.01 GB on cuda
+
+============================================================================================
+ensemble depth K=8  (steps=200 lr=0.05 temp=0.02 |s|/tnorm=[0.5, 0.05, 0.005, 0.0005, 5e-05, 5e-06, 5e-07, 5e-08], 64 queries per optimization batch)
+============================================================================================
+  arm0   nDCG@10=0.3463  R@20=0.2039  R@100=0.3156  MRR@10=0.5487
+         [0s]
+    [greedy@1] 64/323 queries   loss=0.2124   24s elapsed, ~95s left
+    [greedy@1] 128/323 queries   loss=0.1978   38s elapsed, ~57s left
+    [greedy@1] 192/323 queries   loss=0.1899   52s elapsed, ~35s left
+    [greedy@1] 256/323 queries   loss=0.2008   69s elapsed, ~18s left
+    [greedy@1] 320/323 queries   loss=0.3157   87s elapsed, ~1s left
+    [greedy@1] 323/323 queries   loss=0.1299   92s elapsed, ~0s left
+  greedy@1 nDCG@10=0.6298  R@20=0.3710  R@100=0.4850  MRR@10=0.9985
+         [92s]
+    [greedy@2] 64/323 queries   loss=0.3153   25s elapsed, ~99s left
+    [greedy@2] 128/323 queries   loss=0.2243   39s elapsed, ~59s left
+    [greedy@2] 192/323 queries   loss=0.2321   54s elapsed, ~37s left
+    [greedy@2] 256/323 queries   loss=0.2534   71s elapsed, ~19s left
+    [greedy@2] 320/323 queries   loss=0.4120   90s elapsed, ~1s left
+    [greedy@2] 323/323 queries   loss=0.1691   95s elapsed, ~0s left
+  greedy@2 nDCG@10=0.6273  R@20=0.3703  R@100=0.4896  MRR@10=0.9985
+         [95s]
+    [greedy@3] 64/323 queries   loss=0.5007   25s elapsed, ~102s left
+    [greedy@3] 128/323 queries   loss=0.3169   40s elapsed, ~61s left
+    [greedy@3] 192/323 queries   loss=0.3277   55s elapsed, ~38s left
+    [greedy@3] 256/323 queries   loss=0.3575   74s elapsed, ~19s left
+    [greedy@3] 320/323 queries   loss=0.5904   92s elapsed, ~1s left
+    [greedy@3] 323/323 queries   loss=0.2254   98s elapsed, ~0s left
+  greedy@3 nDCG@10=0.6258  R@20=0.3688  R@100=0.4924  MRR@10=0.9985
+         [98s]
+    [greedy@4] 64/323 queries   loss=0.6853   26s elapsed, ~103s left
+    [greedy@4] 128/323 queries   loss=0.4376   41s elapsed, ~62s left
+    [greedy@4] 192/323 queries   loss=0.4466   56s elapsed, ~38s left
+    [greedy@4] 256/323 queries   loss=0.4816   75s elapsed, ~20s left
+    [greedy@4] 320/323 queries   loss=0.7700   94s elapsed, ~1s left
+    [greedy@4] 323/323 queries   loss=0.2819   99s elapsed, ~0s left
+  greedy@4 nDCG@10=0.6235  R@20=0.3676  R@100=0.4915  MRR@10=0.9985
+         [99s]
+    [greedy@5] 64/323 queries   loss=0.8512   26s elapsed, ~107s left
+    [greedy@5] 128/323 queries   loss=0.5542   42s elapsed, ~64s left
+    [greedy@5] 192/323 queries   loss=0.5796   58s elapsed, ~39s left
+    [greedy@5] 256/323 queries   loss=0.5954   77s elapsed, ~20s left
+    [greedy@5] 320/323 queries   loss=0.9416   97s elapsed, ~1s left
+    [greedy@5] 323/323 queries   loss=0.3239   102s elapsed, ~0s left
+  greedy@5 nDCG@10=0.6199  R@20=0.3673  R@100=0.4860  MRR@10=0.9985
+         [102s]
+    [greedy@6] 64/323 queries   loss=1.0155   27s elapsed, ~108s left
+    [greedy@6] 128/323 queries   loss=0.6703   44s elapsed, ~66s left
+    [greedy@6] 192/323 queries   loss=0.7111   60s elapsed, ~41s left
+    [greedy@6] 256/323 queries   loss=0.7124   81s elapsed, ~21s left
+    [greedy@6] 320/323 queries   loss=1.1081   101s elapsed, ~1s left
+    [greedy@6] 323/323 queries   loss=0.3631   106s elapsed, ~0s left
+  greedy@6 nDCG@10=0.6181  R@20=0.3656  R@100=0.4792  MRR@10=0.9934
+         [106s]
+    [greedy@7] 64/323 queries   loss=1.1824   27s elapsed, ~109s left
+    [greedy@7] 128/323 queries   loss=0.8012   44s elapsed, ~68s left
+    [greedy@7] 192/323 queries   loss=0.8449   62s elapsed, ~42s left
+    [greedy@7] 256/323 queries   loss=0.8343   82s elapsed, ~22s left
+    [greedy@7] 320/323 queries   loss=1.2661   103s elapsed, ~1s left
+    [greedy@7] 323/323 queries   loss=0.3952   108s elapsed, ~0s left
+  greedy@7 nDCG@10=0.6126  R@20=0.3651  R@100=0.4778  MRR@10=0.9897
+         [108s]
+    [greedy@8] 64/323 queries   loss=1.2760   27s elapsed, ~110s left
+    [greedy@8] 128/323 queries   loss=0.8709   45s elapsed, ~69s left
+    [greedy@8] 192/323 queries   loss=0.9221   63s elapsed, ~43s left
+    [greedy@8] 256/323 queries   loss=0.9172   84s elapsed, ~22s left
+    [greedy@8] 320/323 queries   loss=1.3737   106s elapsed, ~1s left
+    [greedy@8] 323/323 queries   loss=0.4360   112s elapsed, ~0s left
+  greedy@8 nDCG@10=0.6097  R@20=0.3648  R@100=0.4765  MRR@10=0.9876
+         [112s]
+    [joint@2] 64/323 queries   loss=0.1604   24s elapsed, ~99s left
+    [joint@2] 128/323 queries   loss=0.1284   39s elapsed, ~59s left
+    [joint@2] 192/323 queries   loss=0.1258   53s elapsed, ~36s left
+    [joint@2] 256/323 queries   loss=0.1646   71s elapsed, ~19s left
+    [joint@2] 320/323 queries   loss=0.1859   89s elapsed, ~1s left
+    [joint@2] 323/323 queries   loss=0.0925   95s elapsed, ~0s left
+  joint@2 nDCG@10=0.6300  R@20=0.3721  R@100=0.4903  MRR@10=0.9985
+         [95s]
+    [joint@4] 64/323 queries   loss=0.1218   25s elapsed, ~103s left
+    [joint@4] 128/323 queries   loss=0.1246   41s elapsed, ~62s left
+    [joint@4] 192/323 queries   loss=0.1351   56s elapsed, ~38s left
+    [joint@4] 256/323 queries   loss=0.1304   75s elapsed, ~20s left
+    [joint@4] 320/323 queries   loss=0.1642   93s elapsed, ~1s left
+    [joint@4] 323/323 queries   loss=0.0743   99s elapsed, ~0s left
+  joint@4 nDCG@10=0.6233  R@20=0.3717  R@100=0.4928  MRR@10=0.9985
+         [99s]
+    [joint@8] 64/323 queries   loss=0.1158   27s elapsed, ~110s left
+    [joint@8] 128/323 queries   loss=0.1171   45s elapsed, ~69s left
+    [joint@8] 192/323 queries   loss=0.1275   63s elapsed, ~43s left
+    [joint@8] 256/323 queries   loss=0.1468   83s elapsed, ~22s left
+    [joint@8] 320/323 queries   loss=0.1671   105s elapsed, ~1s left
+    [joint@8] 323/323 queries   loss=0.1032   111s elapsed, ~0s left
+  joint@8 nDCG@10=0.6334  R@20=0.3723  R@100=0.4933  MRR@10=0.9985
+         [111s]
+
+============================================================================================
+depth       greedy     joint   greedy gain   vs prev
+k=1         0.6298        --       +0.0000          
+k=2         0.6273    0.6300       -0.0025   -0.0025
+k=3         0.6258        --       -0.0040   -0.0015
+k=4         0.6235    0.6233       -0.0064   -0.0023
+k=5         0.6199        --       -0.0099   -0.0035
+k=6         0.6181        --       -0.0118   -0.0019
+k=7         0.6126        --       -0.0173   -0.0055
+k=8         0.6097    0.6334       -0.0201   -0.0028
+--------------------------------------------------------------------------------------------
+headroom  greedy@1 - arm0            +0.2836 nDCG@10
+depth     greedy@8 - greedy@1        -0.0201
+ceiling   joint@8  - greedy@1        +0.0036
+capture   depth / ceiling            -560.2%
+--------------------------------------------------------------------------------------------
+PIVOT   the ensemble adds nothing beyond stage 1, even jointly. Single-stage steering is the paper; drop the stagewise framing.
+        Check the per-k column too: a curve that flattens after k=2 caps useful ensemble depth regardless of the verdict above.
+        Reminder: every number here uses gold labels. These are ceilings, not achievable scores.
+============================================================================================
+
+wrote results/wp1_nfcorpus_decay_seed0.json
+finished 2026-08-17 14:59:11 (18.8 min total)

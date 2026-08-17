@@ -66,6 +66,11 @@ at the operating point WP0 identified (0.5x the mean token-embedding norm).
 `--free-norm` lifts the constraint and should be run once as a control: if it
 saturates, that confirms the constraint is what makes the number meaningful.
 
+Equal-norm slots are the wrong boosting analogue. A later stage with the same
+||s|| as stage 1 can dominate attention rather than correct a residual.
+`--scale-decay` / `--slot-scales` shrink later slots (stage 1 stays at `--scale`)
+so each new slot is a small step -- the same role ν plays in F ← F + ν h_k.
+
 **Only queries are steered.** Passages are encoded once, frozen, and cached.
 Steering the corpus would be a different method and would also make the index
 query-dependent, which defeats the point of dense retrieval.
@@ -75,6 +80,10 @@ Usage
     python wp1_oracle.py --dataset scifact --device cuda
     python wp1_oracle.py --dataset nfcorpus --device cuda --steps 300
     python wp1_oracle.py --dataset fiqa --device cuda --corpus-dtype float16
+    python wp1_oracle.py --dataset nfcorpus --device cuda --n-stages 8 \
+        --scale 0.5 --scale-decay 0.1
+    python wp1_oracle.py --dataset nfcorpus --device cuda --n-stages 8 \
+        --slot-scales 0.5 0.1 0.005
 """
 
 from __future__ import annotations
@@ -304,14 +313,48 @@ def evaluate(scores: torch.Tensor, doc_ids: list[str], q_ids: list[str],
 # --------------------------------------------------------------------------- #
 
 
-def _steer_from_raw(raw: torch.Tensor, scale: float, free_norm: bool) -> torch.Tensor:
+def expand_slot_scales(K: int, base: float, decay: float | None,
+                       explicit: list[float] | None) -> list[float]:
+    """Per-stage ||s|| as a multiple of the mean token-embedding norm.
+
+    Stage 1 stays at `base` unless `--slot-scales` overrides it. Later stages
+    shrink so they can only make residual corrections -- boosting shrinkage,
+    not a mixing weight on the output. Unset decay keeps the old equal-norm
+    schedule (every slot at `base`).
+    """
+    if explicit:
+        scales = [float(x) for x in explicit]
+        if len(scales) >= K:
+            return scales[:K]
+        if len(scales) == 1:
+            return scales * K
+        ratio = scales[-1] / scales[-2] if scales[-2] != 0 else 0.0
+        while len(scales) < K:
+            scales.append(scales[-1] * ratio)
+        return scales
+    if decay is None:
+        return [base] * K
+    if not (0.0 < decay < 1.0):
+        raise SystemExit(f"--scale-decay must be in (0, 1), got {decay}")
+    return [base * (decay ** k) for k in range(K)]
+
+
+def _steer_from_raw(raw: torch.Tensor, scale: float | torch.Tensor,
+                    free_norm: bool) -> torch.Tensor:
     """Reparameterize so ||s|| is pinned at `scale` unless free_norm is set.
 
-    This is the guard that keeps the ceiling meaningful: an unconstrained s can
-    drag almost any gold document to rank 1, which would report a ~100% ceiling
-    that says nothing about whether the mechanism is usable.
+    `scale` is a scalar, or a tensor broadcastable to `raw` (used for per-slot
+    decaying norms). This is the guard that keeps the ceiling meaningful: an
+    unconstrained s can drag almost any gold document to rank 1, which would
+    report a ~100% ceiling that says nothing about whether the mechanism is
+    usable.
     """
-    return raw if free_norm else F.normalize(raw, dim=-1) * scale
+    if free_norm:
+        return raw
+    s = F.normalize(raw, dim=-1)
+    if torch.is_tensor(scale):
+        return s * scale.to(device=s.device, dtype=s.dtype)
+    return s * scale
 
 
 def _nll(q: torch.Tensor, C: torch.Tensor, pos: list[list[int]], temp: float) -> torch.Tensor:
@@ -342,6 +385,10 @@ def optimize_arm(enc, q_ids_tok, C, positives, n_slots, trainable, scale,
     Queries are independent, so a batch of them is optimized simultaneously --
     the loss is separable and this is what makes full-scale runs tractable.
 
+    `scale` is either a scalar ||s|| applied to every slot, or a sequence of
+    per-slot norms of length >= n_slots (absolute, already multiplied by the
+    token-embedding norm). Decaying later entries is boosting shrinkage.
+
     frozen: dict {slot_index: (Q, d) tensor} held fixed (used by the greedy arm).
     Returns (steer_raw (Q, n_slots, d) on CPU, final query embeddings (Q, d)).
     """
@@ -349,6 +396,11 @@ def optimize_arm(enc, q_ids_tok, C, positives, n_slots, trainable, scale,
     g = torch.Generator().manual_seed(seed)
     raw = torch.randn(Q, n_slots, d, generator=g) if init_raw is None else init_raw.clone()
     raw = raw.to(dev)
+    if isinstance(scale, (int, float)):
+        scale_t = float(scale)
+    else:
+        scale_t = torch.tensor([float(x) for x in list(scale)[:n_slots]],
+                               device=dev).view(1, n_slots, 1)
 
     out_emb = torch.zeros(Q, d)
     t0 = time.time()
@@ -361,7 +413,7 @@ def optimize_arm(enc, q_ids_tok, C, positives, n_slots, trainable, scale,
 
         for step in range(steps):
             opt.zero_grad(set_to_none=True)
-            s = _steer_from_raw(blk, scale, free_norm)
+            s = _steer_from_raw(blk, scale_t, free_norm)
             parts = []
             for k in range(n_slots):
                 if frozen is not None and k in frozen:
@@ -377,7 +429,7 @@ def optimize_arm(enc, q_ids_tok, C, positives, n_slots, trainable, scale,
             opt.step()
 
         with torch.no_grad():
-            s = _steer_from_raw(blk, scale, free_norm)
+            s = _steer_from_raw(blk, scale_t, free_norm)
             parts = []
             for k in range(n_slots):
                 if frozen is not None and k in frozen:
@@ -416,8 +468,16 @@ def main():
     ap.add_argument("--query-prefix", default="query: ")
     ap.add_argument("--doc-prefix", default="passage: ")
     ap.add_argument("--scale", type=float, default=0.5,
-                    help="||s|| as a multiple of the mean token-embedding norm; "
-                         "0.5 is the operating point WP0 identified")
+                    help="||s|| of stage 1 as a multiple of the mean token-embedding "
+                         "norm; 0.5 is the operating point WP0 identified")
+    ap.add_argument("--scale-decay", type=float, default=None,
+                    help="boosting shrinkage: ||s_k|| = scale * decay^(k-1) * token_norm. "
+                         "Unset = every slot at --scale (old equal-norm schedule). "
+                         "e.g. --scale 0.5 --scale-decay 0.1 -> 0.5, 0.05, 0.005, ...")
+    ap.add_argument("--slot-scales", type=float, nargs="+", default=None,
+                    help="explicit ||s||/token_norm per stage, overriding --scale-decay. "
+                         "If shorter than K, continue with the last ratio "
+                         "(e.g. 0.5 0.1 0.005 -> ... 0.00025)")
     ap.add_argument("--free-norm", action="store_true",
                     help="control run: lift the norm constraint (expect saturation)")
     ap.add_argument("--steps", type=int, default=200)
@@ -462,9 +522,12 @@ def main():
     print(f"loading {args.model} on {args.device} ({args.dtype})")
     enc = SteerableEncoder(args.model, args.device, dtype, args.max_len)
     tnorm = enc.token_norm()
-    scale = args.scale * tnorm
-    print(f"  d={enc.d}   token_norm={tnorm:.4f}   |s|={scale:.4f} "
-          f"({args.scale}x){'  [FREE NORM]' if args.free_norm else ''}")
+    K = args.n_stages
+    rel_scales = expand_slot_scales(K, args.scale, args.scale_decay, args.slot_scales)
+    abs_scales = [s * tnorm for s in rel_scales]
+    sched = ", ".join(f"{s:.4g}" for s in rel_scales)
+    print(f"  d={enc.d}   token_norm={tnorm:.4f}   |s|/tnorm = [{sched}]"
+          f"{'  [FREE NORM]' if args.free_norm else ''}")
 
     print(f"\nloading BEIR/{args.dataset} ({args.split})")
     doc_ids, doc_texts, q_ids, q_texts, qrels = load_beir(args.dataset, args.split)
@@ -508,7 +571,8 @@ def main():
 
     q_tok = enc.tokenize([args.query_prefix + t for t in q_texts])
     results = {"config": vars(args) | {"d": enc.d, "token_norm": tnorm,
-                                       "n_docs": len(doc_ids), "n_queries": len(q_ids)},
+                                       "n_docs": len(doc_ids), "n_queries": len(q_ids),
+                                       "slot_scales": rel_scales},
                "self_check": chk, "arms": {}}
 
     def run_eval(name, emb):
@@ -520,14 +584,13 @@ def main():
               f"R@100={m['recall@100']:.4f}  MRR@10={m['mrr@10']:.4f}")
         return m
 
-    common = dict(scale=scale, steps=args.steps, lr=args.lr, temp=args.temp,
+    common = dict(scale=abs_scales, steps=args.steps, lr=args.lr, temp=args.temp,
                   batch_size=args.batch_size, free_norm=args.free_norm, seed=args.seed)
 
-    K = args.n_stages
     joint_at = sorted(set(args.joint_at or [K]) - {1})   # k=1 shared with greedy
     print("\n" + "=" * 92)
     print(f"ensemble depth K={K}  (steps={args.steps} lr={args.lr} temp={args.temp} "
-          f"|s|={args.scale}x, {args.batch_size} queries per optimization batch)")
+          f"|s|/tnorm=[{sched}], {args.batch_size} queries per optimization batch)")
     print("=" * 92)
 
     if not args.skip_baseline:
@@ -564,7 +627,8 @@ def main():
         raw, emb = optimize_arm(enc, q_tok, C, positives, k, {k - 1},
                                 frozen=dict(frozen), label=f"greedy@{k}", **common)
         run_eval(f"greedy@{k}", emb)
-        frozen[k - 1] = _steer_from_raw(raw[:, k - 1], scale, args.free_norm)
+        frozen[k - 1] = _steer_from_raw(raw[:, k - 1], abs_scales[k - 1],
+                                        args.free_norm)
         print(f"         [{time.time() - t0:.0f}s]")
 
     # ---- joint ceiling at selected depths --------------------------------- #

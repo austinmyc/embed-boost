@@ -1,0 +1,604 @@
+nohup: ignoring input
+logging to results/wp1_nfcorpus_seed0.log
+started 2026-08-17 13:10:53
+loading intfloat/e5-large-v2 on cuda (float32)
+
+config.json:   0%|          | 0.00/616 [00:00<?, ?B/s]
+config.json: 100%|##########| 616/616 [00:00<00:00, 1.42MB/s]
+
+tokenizer_config.json:   0%|          | 0.00/314 [00:00<?, ?B/s]
+tokenizer_config.json: 100%|##########| 314/314 [00:00<00:00, 870kB/s]
+
+vocab.txt:   0%|          | 0.00/232k [00:00<?, ?B/s]
+vocab.txt: 100%|##########| 232k/232k [00:00<00:00, 719kB/s]
+vocab.txt: 100%|##########| 232k/232k [00:00<00:00, 718kB/s]
+
+tokenizer.json:   0%|          | 0.00/711k [00:00<?, ?B/s]
+tokenizer.json: 100%|##########| 711k/711k [00:00<00:00, 4.20MB/s]
+tokenizer.json: 100%|##########| 711k/711k [00:00<00:00, 4.19MB/s]
+
+special_tokens_map.json:   0%|          | 0.00/125 [00:00<?, ?B/s]
+special_tokens_map.json: 100%|##########| 125/125 [00:00<00:00, 496kB/s]
+
+
+model.safetensors: reconstructing file:   0%|          |  0.00B / 1.34GB            [A
+model.safetensors: downloading bytes:           |  0.00B            
+model.safetensors: downloading bytes:           | 66.4kB            
+model.safetensors: downloading bytes:           | 94.8kB, 6.20kB/s  
+model.safetensors: downloading bytes:           |  214kB, 8.78kB/s  
+model.safetensors: downloading bytes:           |  334kB, 19.7kB/s  
+model.safetensors: downloading bytes:           |  591kB, 30.8kB/s  
+model.safetensors: downloading bytes:           |  952kB, 54.2kB/s  
+model.safetensors: downloading bytes:           | 1.49MB, 87.0kB/s  
+model.safetensors: downloading bytes:           | 2.47MB,  136kB/s  
+model.safetensors: downloading bytes:           | 3.94MB,  225kB/s  
+model.safetensors: downloading bytes:           | 6.33MB,  357kB/s  
+model.safetensors: downloading bytes:           | 9.99MB,  572kB/s  
+model.safetensors: downloading bytes: 1         | 15.7MB,  900kB/s  
+model.safetensors: downloading bytes: 1         | 24.9MB, 1.41MB/s  
+model.safetensors: downloading bytes: 2         | 33.7MB, 2.23MB/s  
+model.safetensors: downloading bytes: 3         | 43.8MB, 3.01MB/s  
+model.safetensors: downloading bytes: 3         | 52.7MB, 3.90MB/s  
+model.safetensors: downloading bytes: 4         | 61.8MB, 4.66MB/s  
+model.safetensors: downloading bytes: 5         | 72.0MB, 5.44MB/s  
+model.safetensors: downloading bytes: 6         | 89.8MB, 7.01MB/s  
+model.safetensors: downloading bytes: 7         | 98.9MB, 7.78MB/s  
+model.safetensors: downloading bytes: 8         |  108MB, 8.52MB/s  
+model.safetensors: downloading bytes: 8         |  117MB, 9.28MB/s  
+model.safetensors: downloading bytes: 9         |  127MB, 10.0MB/s  
+model.safetensors: downloading bytes: #         |  136MB, 10.8MB/s  
+model.safetensors: downloading bytes: #         |  145MB, 11.5MB/s  
+model.safetensors: downloading bytes: #1        |  160MB, 12.7MB/s  
+model.safetensors: downloading bytes: #3        |  175MB, 13.8MB/s  
+
+model.safetensors: reconstructing file:  10%|#         |  134MB / 1.34GB            [A
+
+model.safetensors: reconstructing file:  19%|#9        |  256MB / 1.34GB, 11.7MB/s  [A
+model.safetensors: downloading bytes: #4        |  189MB, 14.6MB/s  
+model.safetensors: downloading bytes: #4        |  199MB, 15.2MB/s  
+model.safetensors: downloading bytes: #5        |  208MB, 15.9MB/s  
+model.safetensors: downloading bytes: #6        |  223MB, 17.1MB/s  
+model.safetensors: downloading bytes: #7        |  239MB, 18.0MB/s  
+model.safetensors: downloading bytes: #8        |  249MB, 18.7MB/s  
+model.safetensors: downloading bytes: #9        |  258MB, 19.3MB/s  
+model.safetensors: downloading bytes: #9        |  268MB, 20.0MB/s  
+model.safetensors: downloading bytes: ##        |  277MB, 20.6MB/s  
+model.safetensors: downloading bytes: ##1       |  287MB, 21.3MB/s  
+model.safetensors: downloading bytes: ##2       |  296MB, 21.9MB/s  
+model.safetensors: downloading bytes: ##2       |  306MB, 22.5MB/s  
+model.safetensors: downloading bytes: ##3       |  316MB, 23.2MB/s  
+model.safetensors: downloading bytes: ##4       |  326MB, 23.8MB/s  
+
+model.safetensors: reconstructing file:  25%|##5       |  335MB / 1.34GB, 22.6MB/s  [A
+model.safetensors: downloading bytes: ##5       |  345MB, 25.0MB/s  
+model.safetensors: downloading bytes: ##6       |  356MB, 25.7MB/s  
+
+model.safetensors: reconstructing file:  35%|###5      |  470MB / 1.34GB, 25.9MB/s  [A
+model.safetensors: downloading bytes: ##8       |  376MB, 26.1MB/s  
+model.safetensors: downloading bytes: ##8       |  386MB, 27.5MB/s  
+model.safetensors: downloading bytes: ##9       |  396MB, 27.5MB/s  
+model.safetensors: downloading bytes: ###       |  410MB, 28.1MB/s  
+model.safetensors: downloading bytes: ###2      |  436MB, 29.3MB/s  
+model.safetensors: downloading bytes: ###3      |  446MB, 30.2MB/s  
+model.safetensors: downloading bytes: ###4      |  462MB, 31.0MB/s  
+model.safetensors: downloading bytes: ###5      |  473MB, 31.3MB/s  
+model.safetensors: downloading bytes: ###6      |  483MB, 32.0MB/s  
+model.safetensors: downloading bytes: ###7      |  496MB, 32.7MB/s  
+model.safetensors: downloading bytes: ###8      |  511MB, 32.9MB/s  
+model.safetensors: downloading bytes: ###9      |  527MB, 33.8MB/s  
+model.safetensors: downloading bytes: ####      |  541MB, 35.0MB/s  
+model.safetensors: downloading bytes: ####1     |  555MB, 35.1MB/s  
+model.safetensors: downloading bytes: ####3     |  584MB, 36.2MB/s  
+model.safetensors: downloading bytes: ####4     |  597MB, 37.9MB/s  
+model.safetensors: downloading bytes: ####5     |  614MB, 37.9MB/s  
+model.safetensors: downloading bytes: ####6     |  628MB, 39.0MB/s  
+model.safetensors: downloading bytes: ####8     |  645MB, 40.2MB/s  
+model.safetensors: downloading bytes: ####9     |  668MB, 40.5MB/s  
+model.safetensors: downloading bytes: #####     |  679MB, 41.3MB/s  
+model.safetensors: downloading bytes: #####1    |  689MB, 41.9MB/s  
+model.safetensors: downloading bytes: #####2    |  707MB, 42.2MB/s  
+model.safetensors: downloading bytes: #####4    |  732MB, 42.9MB/s  
+
+model.safetensors: reconstructing file:  45%|####5     |  604MB / 1.34GB, 36.1MB/s  [A
+model.safetensors: downloading bytes: #####5    |  743MB, 44.5MB/s  
+model.safetensors: downloading bytes: #####6    |  759MB, 43.9MB/s  
+model.safetensors: downloading bytes: #####7    |  769MB, 44.8MB/s  
+
+model.safetensors: reconstructing file:  60%|######    |  805MB / 1.34GB, 35.8MB/s  [A
+model.safetensors: downloading bytes: #####8    |  778MB, 45.0MB/s  
+model.safetensors: downloading bytes: #####9    |  797MB, 44.8MB/s  
+model.safetensors: downloading bytes: ######    |  808MB, 45.7MB/s  
+model.safetensors: downloading bytes: ######1   |  818MB, 46.2MB/s  
+model.safetensors: downloading bytes: ######2   |  832MB, 46.3MB/s  
+model.safetensors: downloading bytes: ######2   |  841MB, 46.9MB/s  
+model.safetensors: downloading bytes: ######3   |  850MB, 46.9MB/s  
+model.safetensors: downloading bytes: ######3   |  858MB, 47.2MB/s  
+model.safetensors: downloading bytes: ######4   |  867MB, 47.5MB/s  
+
+model.safetensors: reconstructing file:  76%|#######6  | 1.02GB / 1.34GB, 50.3MB/s  [A
+
+model.safetensors: reconstructing file:  85%|########5 | 1.14GB / 1.34GB, 62.1MB/s  [A
+model.safetensors: downloading bytes: ######5   |  879MB, 48.0MB/s  
+model.safetensors: downloading bytes: ######6   |  888MB, 48.0MB/s  
+
+model.safetensors: reconstructing file:  95%|#########5| 1.27GB / 1.34GB, 70.7MB/s  [A
+model.safetensors: downloading bytes: ######6   |  896MB, 48.0MB/s  
+
+model.safetensors: reconstructing file: 100%|##########| 1.34GB / 1.34GB, 79.0MB/s  [A
+model.safetensors: downloading bytes: ##########|  900MB, 47.0MB/s  
+model.safetensors: downloading bytes: ##########|  900MB, 47.0MB/s  
+
+model.safetensors: reconstructing file: 100%|##########| 1.34GB / 1.34GB, 82.2MB/s  
+
+Loading weights:   0%|          | 0/391 [00:00<?, ?it/s]
+Loading weights: 100%|##########| 391/391 [00:00<00:00, 9911.54it/s]
+  d=1024   token_norm=1.4409   |s|=0.7204 (0.5x)
+
+loading BEIR/nfcorpus (test)
+
+README.md:   0%|          | 0.00/10.5k [00:00<?, ?B/s]
+README.md: 100%|##########| 10.5k/10.5k [00:00<00:00, 264kB/s]
+
+
+corpus/corpus-00000-of-00001.parquet: reconstructing file:   0%|          |  0.00B / 3.16MB            [A
+corpus/corpus-00000-of-00001.parquet: downloading bytes:           |  0.00B            
+corpus/corpus-00000-of-00001.parquet: downloading bytes: 1         | 32.8kB            
+corpus/corpus-00000-of-00001.parquet: downloading bytes: 1         | 63.0kB, 3.06kB/s  
+corpus/corpus-00000-of-00001.parquet: downloading bytes: 3         |  110kB, 5.84kB/s  
+corpus/corpus-00000-of-00001.parquet: downloading bytes: 4         |  155kB, 10.2kB/s  
+corpus/corpus-00000-of-00001.parquet: downloading bytes: 7         |  223kB, 14.2kB/s  
+corpus/corpus-00000-of-00001.parquet: downloading bytes: #         |  330kB, 20.4kB/s  
+corpus/corpus-00000-of-00001.parquet: downloading bytes: #5        |  494kB, 30.1kB/s  
+corpus/corpus-00000-of-00001.parquet: downloading bytes: ##4       |  784kB, 44.9kB/s  
+corpus/corpus-00000-of-00001.parquet: downloading bytes: ###8      | 1.22MB, 71.1kB/s  
+corpus/corpus-00000-of-00001.parquet: downloading bytes: ######1   | 1.93MB,  111kB/s  
+corpus/corpus-00000-of-00001.parquet: downloading bytes: #########6| 3.06MB,  174kB/s  
+
+corpus/corpus-00000-of-00001.parquet: reconstructing file: 100%|##########| 3.16MB / 3.16MB            [A
+corpus/corpus-00000-of-00001.parquet: downloading bytes: ##########| 3.15MB,  283kB/s  
+corpus/corpus-00000-of-00001.parquet: downloading bytes: ##########| 3.15MB,  283kB/s  
+
+corpus/corpus-00000-of-00001.parquet: reconstructing file: 100%|##########| 3.16MB / 3.16MB,  288kB/s  
+
+Generating corpus split:   0%|          | 0/3633 [00:00<?, ? examples/s]
+Generating corpus split: 100%|##########| 3633/3633 [00:00<00:00, 104087.62 examples/s]
+
+
+queries/queries-00000-of-00001.parquet: reconstructing file:   0%|          |  0.00B / 80.9kB            [A
+queries/queries-00000-of-00001.parquet: downloading bytes:           |  0.00B            
+queries/queries-00000-of-00001.parquet: downloading bytes: ##        | 16.4kB            
+queries/queries-00000-of-00001.parquet: downloading bytes: ####1     | 33.6kB, 1.53kB/s  
+queries/queries-00000-of-00001.parquet: downloading bytes: #######1  | 57.7kB, 3.13kB/s  
+
+queries/queries-00000-of-00001.parquet: reconstructing file: 100%|##########| 80.9kB / 80.9kB            [A
+queries/queries-00000-of-00001.parquet: downloading bytes: ##########| 69.4kB, 6.41kB/s  
+queries/queries-00000-of-00001.parquet: downloading bytes: ##########| 69.4kB, 6.41kB/s  
+
+queries/queries-00000-of-00001.parquet: reconstructing file: 100%|##########| 80.9kB / 80.9kB, 7.53kB/s  
+
+Generating queries split:   0%|          | 0/3237 [00:00<?, ? examples/s]
+Generating queries split: 100%|##########| 3237/3237 [00:00<00:00, 538789.72 examples/s]
+
+README.md:   0%|          | 0.00/14.0k [00:00<?, ?B/s]
+README.md: 100%|##########| 14.0k/14.0k [00:00<00:00, 22.1MB/s]
+
+train.tsv:   0%|          | 0.00/2.50M [00:00<?, ?B/s]
+train.tsv: 100%|##########| 2.50M/2.50M [00:00<00:00, 4.35MB/s]
+train.tsv: 100%|##########| 2.50M/2.50M [00:00<00:00, 4.34MB/s]
+
+dev.tsv:   0%|          | 0.00/258k [00:00<?, ?B/s]
+dev.tsv: 100%|##########| 258k/258k [00:00<00:00, 5.93MB/s]
+
+test.tsv:   0%|          | 0.00/280k [00:00<?, ?B/s]
+test.tsv: 100%|##########| 280k/280k [00:00<00:00, 101MB/s]
+
+Generating train split:   0%|          | 0/110575 [00:00<?, ? examples/s]
+Generating train split: 100%|##########| 110575/110575 [00:00<00:00, 1161786.48 examples/s]
+
+Generating validation split:   0%|          | 0/11385 [00:00<?, ? examples/s]
+Generating validation split: 100%|##########| 11385/11385 [00:00<00:00, 933607.40 examples/s]
+
+Generating test split:   0%|          | 0/12334 [00:00<?, ? examples/s]
+Generating test split: 100%|##########| 12334/12334 [00:00<00:00, 1086909.52 examples/s]
+  3633 docs   323 queries
+
+self-check (max abs err, want < 1e-4):
+  [ok  ] identity_vs_hf             0.00e+00
+  [ok  ] batch_invariance           2.44e-06
+  [ok  ] batch_invariance_steered   2.50e-06
+
+encoding 3633 passages (frozen, once)
+    encoded 128/3633  (315/s)
+    encoded 2688/3633  (307/s)
+  cached to results/cache/nfcorpus_intfloat_e5-large-v2_float32.pt
+  corpus matrix (3633, 1024) float32 = 0.01 GB on cuda
+
+============================================================================================
+ensemble depth K=8  (steps=200 lr=0.05 temp=0.02 |s|=0.5x, 64 queries per optimization batch)
+============================================================================================
+  arm0   nDCG@10=0.3463  R@20=0.2039  R@100=0.3156  MRR@10=0.5487
+         [0s]
+    [greedy@1] 64/323 queries   loss=0.2124   23s elapsed, ~92s left
+    [greedy@1] 128/323 queries   loss=0.1978   37s elapsed, ~56s left
+    [greedy@1] 192/323 queries   loss=0.1899   50s elapsed, ~34s left
+    [greedy@1] 256/323 queries   loss=0.2008   67s elapsed, ~18s left
+    [greedy@1] 320/323 queries   loss=0.3157   85s elapsed, ~1s left
+    [greedy@1] 323/323 queries   loss=0.1299   90s elapsed, ~0s left
+  greedy@1 nDCG@10=0.6298  R@20=0.3710  R@100=0.4850  MRR@10=0.9985
+         [90s]
+    [greedy@2] 64/323 queries   loss=0.0872   24s elapsed, ~99s left
+    [greedy@2] 128/323 queries   loss=0.0596   39s elapsed, ~59s left
+    [greedy@2] 192/323 queries   loss=0.0665   53s elapsed, ~36s left
+    [greedy@2] 256/323 queries   loss=0.0699   71s elapsed, ~19s left
+    [greedy@2] 320/323 queries   loss=0.1218   90s elapsed, ~1s left
+    [greedy@2] 323/323 queries   loss=0.0333   95s elapsed, ~0s left
+  greedy@2 nDCG@10=0.6270  R@20=0.3741  R@100=0.4852  MRR@10=0.9985
+         [95s]
+    [greedy@3] 64/323 queries   loss=0.0390   25s elapsed, ~100s left
+    [greedy@3] 128/323 queries   loss=0.0284   39s elapsed, ~60s left
+    [greedy@3] 192/323 queries   loss=0.0371   55s elapsed, ~37s left
+    [greedy@3] 256/323 queries   loss=0.0312   73s elapsed, ~19s left
+    [greedy@3] 320/323 queries   loss=0.0530   91s elapsed, ~1s left
+    [greedy@3] 323/323 queries   loss=0.0148   96s elapsed, ~0s left
+  greedy@3 nDCG@10=0.6297  R@20=0.3701  R@100=0.4868  MRR@10=0.9985
+         [97s]
+    [greedy@4] 64/323 queries   loss=0.0176   25s elapsed, ~103s left
+    [greedy@4] 128/323 queries   loss=0.0136   40s elapsed, ~61s left
+    [greedy@4] 192/323 queries   loss=0.0247   56s elapsed, ~38s left
+    [greedy@4] 256/323 queries   loss=0.0161   74s elapsed, ~19s left
+    [greedy@4] 320/323 queries   loss=0.0314   93s elapsed, ~1s left
+    [greedy@4] 323/323 queries   loss=0.0081   98s elapsed, ~0s left
+  greedy@4 nDCG@10=0.6301  R@20=0.3723  R@100=0.4843  MRR@10=0.9985
+         [98s]
+    [greedy@5] 64/323 queries   loss=0.0109   27s elapsed, ~108s left
+    [greedy@5] 128/323 queries   loss=0.0085   42s elapsed, ~65s left
+    [greedy@5] 192/323 queries   loss=0.0189   58s elapsed, ~40s left
+    [greedy@5] 256/323 queries   loss=0.0102   77s elapsed, ~20s left
+    [greedy@5] 320/323 queries   loss=0.0236   97s elapsed, ~1s left
+    [greedy@5] 323/323 queries   loss=0.0067   102s elapsed, ~0s left
+  greedy@5 nDCG@10=0.6319  R@20=0.3752  R@100=0.4827  MRR@10=0.9985
+         [102s]
+    [greedy@6] 64/323 queries   loss=0.0070   27s elapsed, ~109s left
+    [greedy@6] 128/323 queries   loss=0.0055   44s elapsed, ~67s left
+    [greedy@6] 192/323 queries   loss=0.0161   61s elapsed, ~41s left
+    [greedy@6] 256/323 queries   loss=0.0067   81s elapsed, ~21s left
+    [greedy@6] 320/323 queries   loss=0.0194   101s elapsed, ~1s left
+    [greedy@6] 323/323 queries   loss=0.0044   105s elapsed, ~0s left
+  greedy@6 nDCG@10=0.6318  R@20=0.3786  R@100=0.4827  MRR@10=0.9985
+         [105s]
+    [greedy@7] 64/323 queries   loss=0.0056   27s elapsed, ~110s left
+    [greedy@7] 128/323 queries   loss=0.0042   45s elapsed, ~68s left
+    [greedy@7] 192/323 queries   loss=0.0148   62s elapsed, ~42s left
+    [greedy@7] 256/323 queries   loss=0.0054   83s elapsed, ~22s left
+    [greedy@7] 320/323 queries   loss=0.0178   103s elapsed, ~1s left
+    [greedy@7] 323/323 queries   loss=0.0039   108s elapsed, ~0s left
+  greedy@7 nDCG@10=0.6315  R@20=0.3762  R@100=0.4814  MRR@10=0.9985
+         [108s]
+    [greedy@8] 64/323 queries   loss=0.0045   27s elapsed, ~110s left
+    [greedy@8] 128/323 queries   loss=0.0031   45s elapsed, ~69s left
+    [greedy@8] 192/323 queries   loss=0.0141   63s elapsed, ~43s left
+    [greedy@8] 256/323 queries   loss=0.0040   84s elapsed, ~22s left
+    [greedy@8] 320/323 queries   loss=0.0160   106s elapsed, ~1s left
+    [greedy@8] 323/323 queries   loss=0.0033   111s elapsed, ~0s left
+  greedy@8 nDCG@10=0.6323  R@20=0.3768  R@100=0.4845  MRR@10=0.9985
+         [111s]
+    [joint@2] 64/323 queries   loss=0.0555   24s elapsed, ~97s left
+    [joint@2] 128/323 queries   loss=0.0466   38s elapsed, ~58s left
+    [joint@2] 192/323 queries   loss=0.0546   52s elapsed, ~36s left
+    [joint@2] 256/323 queries   loss=0.0544   70s elapsed, ~18s left
+    [joint@2] 320/323 queries   loss=0.0651   88s elapsed, ~1s left
+    [joint@2] 323/323 queries   loss=0.0336   93s elapsed, ~0s left
+  joint@2 nDCG@10=0.6318  R@20=0.3762  R@100=0.4898  MRR@10=0.9985
+         [93s]
+    [joint@4] 64/323 queries   loss=0.0162   25s elapsed, ~102s left
+    [joint@4] 128/323 queries   loss=0.0175   40s elapsed, ~61s left
+    [joint@4] 192/323 queries   loss=0.0281   55s elapsed, ~37s left
+    [joint@4] 256/323 queries   loss=0.0181   72s elapsed, ~19s left
+    [joint@4] 320/323 queries   loss=0.0185   90s elapsed, ~1s left
+    [joint@4] 323/323 queries   loss=0.0263   94s elapsed, ~0s left
+  joint@4 nDCG@10=0.6363  R@20=0.3800  R@100=0.4949  MRR@10=0.9985
+         [94s]
+    [joint@8] 64/323 queries   loss=0.0075   26s elapsed, ~106s left
+    [joint@8] 128/323 queries   loss=0.0078   44s elapsed, ~67s left
+    [joint@8] 192/323 queries   loss=0.0199   62s elapsed, ~42s left
+    [joint@8] 256/323 queries   loss=0.0085   82s elapsed, ~22s left
+    [joint@8] 320/323 queries   loss=0.0091   104s elapsed, ~1s left
+    [joint@8] 323/323 queries   loss=0.0050   109s elapsed, ~0s left
+  joint@8 nDCG@10=0.6356  R@20=0.3784  R@100=0.4954  MRR@10=0.9985
+         [109s]
+
+============================================================================================
+depth       greedy     joint   greedy gain   vs prev
+k=1         0.6298        --       +0.0000          
+k=2         0.6270    0.6318       -0.0028   -0.0028
+k=3         0.6297        --       -0.0001   +0.0027
+k=4         0.6301    0.6363       +0.0003   +0.0004
+k=5         0.6319        --       +0.0020   +0.0018
+k=6         0.6318        --       +0.0019   -0.0001
+k=7         0.6315        --       +0.0016   -0.0003
+k=8         0.6323    0.6356       +0.0025   +0.0009
+--------------------------------------------------------------------------------------------
+headroom  greedy@1 - arm0            +0.2836 nDCG@10
+depth     greedy@8 - greedy@1        +0.0025
+ceiling   joint@8  - greedy@1        +0.0058
+capture   depth / ceiling            43.3%
+--------------------------------------------------------------------------------------------
+PIVOT   the ensemble adds nothing beyond stage 1, even jointly. Single-stage steering is the paper; drop the stagewise framing.
+        Check the per-k column too: a curve that flattens after k=2 caps useful ensemble depth regardless of the verdict above.
+        Reminder: every number here uses gold labels. These are ceilings, not achievable scores.
+============================================================================================
+
+wrote results/wp1_nfcorpus_seed0.json
+finished 2026-08-17 13:30:22 (19.5 min total)
+logging to results/wp1_nfcorpus_seed1.log
+started 2026-08-17 13:30:27
+loading intfloat/e5-large-v2 on cuda (float32)
+
+Loading weights:   0%|          | 0/391 [00:00<?, ?it/s]
+Loading weights: 100%|##########| 391/391 [00:00<00:00, 10580.88it/s]
+  d=1024   token_norm=1.4409   |s|=0.7204 (0.5x)
+
+loading BEIR/nfcorpus (test)
+  3633 docs   323 queries
+
+self-check (max abs err, want < 1e-4):
+  [ok  ] identity_vs_hf             0.00e+00
+  [ok  ] batch_invariance           2.44e-06
+  [ok  ] batch_invariance_steered   2.50e-06
+
+loading cached corpus embeddings from results/cache/nfcorpus_intfloat_e5-large-v2_float32.pt
+  corpus matrix (3633, 1024) float32 = 0.01 GB on cuda
+
+============================================================================================
+ensemble depth K=8  (steps=200 lr=0.05 temp=0.02 |s|=0.5x, 64 queries per optimization batch)
+============================================================================================
+  arm0   nDCG@10=0.3463  R@20=0.2039  R@100=0.3156  MRR@10=0.5487
+         [0s]
+    [greedy@1] 64/323 queries   loss=0.1907   23s elapsed, ~93s left
+    [greedy@1] 128/323 queries   loss=0.1855   36s elapsed, ~55s left
+    [greedy@1] 192/323 queries   loss=0.1801   50s elapsed, ~34s left
+    [greedy@1] 256/323 queries   loss=0.1648   67s elapsed, ~18s left
+    [greedy@1] 320/323 queries   loss=0.2784   85s elapsed, ~1s left
+    [greedy@1] 323/323 queries   loss=0.1185   90s elapsed, ~0s left
+  greedy@1 nDCG@10=0.6285  R@20=0.3748  R@100=0.4908  MRR@10=0.9985
+         [90s]
+    [greedy@2] 64/323 queries   loss=0.0629   24s elapsed, ~98s left
+    [greedy@2] 128/323 queries   loss=0.0583   38s elapsed, ~58s left
+    [greedy@2] 192/323 queries   loss=0.0597   53s elapsed, ~36s left
+    [greedy@2] 256/323 queries   loss=0.0612   70s elapsed, ~18s left
+    [greedy@2] 320/323 queries   loss=0.0932   88s elapsed, ~1s left
+    [greedy@2] 323/323 queries   loss=0.0333   93s elapsed, ~0s left
+  greedy@2 nDCG@10=0.6278  R@20=0.3744  R@100=0.4930  MRR@10=0.9985
+         [93s]
+    [greedy@3] 64/323 queries   loss=0.0297   25s elapsed, ~101s left
+    [greedy@3] 128/323 queries   loss=0.0263   40s elapsed, ~61s left
+    [greedy@3] 192/323 queries   loss=0.0339   55s elapsed, ~37s left
+    [greedy@3] 256/323 queries   loss=0.0265   73s elapsed, ~19s left
+    [greedy@3] 320/323 queries   loss=0.0444   91s elapsed, ~1s left
+    [greedy@3] 323/323 queries   loss=0.0208   96s elapsed, ~0s left
+  greedy@3 nDCG@10=0.6307  R@20=0.3767  R@100=0.4944  MRR@10=0.9985
+         [96s]
+    [greedy@4] 64/323 queries   loss=0.0139   25s elapsed, ~102s left
+    [greedy@4] 128/323 queries   loss=0.0146   40s elapsed, ~62s left
+    [greedy@4] 192/323 queries   loss=0.0223   56s elapsed, ~38s left
+    [greedy@4] 256/323 queries   loss=0.0146   74s elapsed, ~19s left
+    [greedy@4] 320/323 queries   loss=0.0235   93s elapsed, ~1s left
+    [greedy@4] 323/323 queries   loss=0.0131   97s elapsed, ~0s left
+  greedy@4 nDCG@10=0.6315  R@20=0.3773  R@100=0.4914  MRR@10=0.9985
+         [98s]
+    [greedy@5] 64/323 queries   loss=0.0085   26s elapsed, ~106s left
+    [greedy@5] 128/323 queries   loss=0.0088   41s elapsed, ~63s left
+    [greedy@5] 192/323 queries   loss=0.0180   56s elapsed, ~38s left
+    [greedy@5] 256/323 queries   loss=0.0089   75s elapsed, ~20s left
+    [greedy@5] 320/323 queries   loss=0.0145   95s elapsed, ~1s left
+    [greedy@5] 323/323 queries   loss=0.0080   100s elapsed, ~0s left
+  greedy@5 nDCG@10=0.6330  R@20=0.3777  R@100=0.4914  MRR@10=0.9985
+         [100s]
+    [greedy@6] 64/323 queries   loss=0.0054   26s elapsed, ~107s left
+    [greedy@6] 128/323 queries   loss=0.0062   43s elapsed, ~66s left
+    [greedy@6] 192/323 queries   loss=0.0157   60s elapsed, ~41s left
+    [greedy@6] 256/323 queries   loss=0.0061   80s elapsed, ~21s left
+    [greedy@6] 320/323 queries   loss=0.0093   99s elapsed, ~1s left
+    [greedy@6] 323/323 queries   loss=0.0061   103s elapsed, ~0s left
+  greedy@6 nDCG@10=0.6323  R@20=0.3784  R@100=0.4934  MRR@10=0.9985
+         [103s]
+    [greedy@7] 64/323 queries   loss=0.0045   27s elapsed, ~109s left
+    [greedy@7] 128/323 queries   loss=0.0049   44s elapsed, ~68s left
+    [greedy@7] 192/323 queries   loss=0.0146   62s elapsed, ~42s left
+    [greedy@7] 256/323 queries   loss=0.0046   82s elapsed, ~21s left
+    [greedy@7] 320/323 queries   loss=0.0070   102s elapsed, ~1s left
+    [greedy@7] 323/323 queries   loss=0.0045   107s elapsed, ~0s left
+  greedy@7 nDCG@10=0.6315  R@20=0.3789  R@100=0.4938  MRR@10=0.9985
+         [107s]
+    [greedy@8] 64/323 queries   loss=0.0034   27s elapsed, ~109s left
+    [greedy@8] 128/323 queries   loss=0.0039   44s elapsed, ~68s left
+    [greedy@8] 192/323 queries   loss=0.0138   62s elapsed, ~42s left
+    [greedy@8] 256/323 queries   loss=0.0036   83s elapsed, ~22s left
+    [greedy@8] 320/323 queries   loss=0.0053   104s elapsed, ~1s left
+    [greedy@8] 323/323 queries   loss=0.0032   109s elapsed, ~0s left
+  greedy@8 nDCG@10=0.6323  R@20=0.3763  R@100=0.4954  MRR@10=0.9985
+         [109s]
+    [joint@2] 64/323 queries   loss=0.0437   24s elapsed, ~98s left
+    [joint@2] 128/323 queries   loss=0.0533   38s elapsed, ~58s left
+    [joint@2] 192/323 queries   loss=0.0591   52s elapsed, ~36s left
+    [joint@2] 256/323 queries   loss=0.0573   70s elapsed, ~18s left
+    [joint@2] 320/323 queries   loss=0.0711   88s elapsed, ~1s left
+    [joint@2] 323/323 queries   loss=0.0489   93s elapsed, ~0s left
+  joint@2 nDCG@10=0.6336  R@20=0.3704  R@100=0.4979  MRR@10=0.9985
+         [93s]
+    [joint@4] 64/323 queries   loss=0.0174   25s elapsed, ~102s left
+    [joint@4] 128/323 queries   loss=0.0170   40s elapsed, ~61s left
+    [joint@4] 192/323 queries   loss=0.0283   55s elapsed, ~38s left
+    [joint@4] 256/323 queries   loss=0.0184   74s elapsed, ~19s left
+    [joint@4] 320/323 queries   loss=0.0305   92s elapsed, ~1s left
+    [joint@4] 323/323 queries   loss=0.0124   97s elapsed, ~0s left
+  joint@4 nDCG@10=0.6348  R@20=0.3814  R@100=0.4928  MRR@10=0.9985
+         [97s]
+    [joint@8] 64/323 queries   loss=0.0079   27s elapsed, ~109s left
+    [joint@8] 128/323 queries   loss=0.0076   44s elapsed, ~68s left
+    [joint@8] 192/323 queries   loss=0.0187   62s elapsed, ~42s left
+    [joint@8] 256/323 queries   loss=0.0085   82s elapsed, ~22s left
+    [joint@8] 320/323 queries   loss=0.0196   104s elapsed, ~1s left
+    [joint@8] 323/323 queries   loss=0.0052   109s elapsed, ~0s left
+  joint@8 nDCG@10=0.6429  R@20=0.3860  R@100=0.4980  MRR@10=0.9985
+         [109s]
+
+============================================================================================
+depth       greedy     joint   greedy gain   vs prev
+k=1         0.6285        --       +0.0000          
+k=2         0.6278    0.6336       -0.0007   -0.0007
+k=3         0.6307        --       +0.0023   +0.0030
+k=4         0.6315    0.6348       +0.0031   +0.0008
+k=5         0.6330        --       +0.0046   +0.0015
+k=6         0.6323        --       +0.0039   -0.0007
+k=7         0.6315        --       +0.0031   -0.0008
+k=8         0.6323    0.6429       +0.0039   +0.0008
+--------------------------------------------------------------------------------------------
+headroom  greedy@1 - arm0            +0.2822 nDCG@10
+depth     greedy@8 - greedy@1        +0.0039
+ceiling   joint@8  - greedy@1        +0.0144
+capture   depth / ceiling            26.9%
+--------------------------------------------------------------------------------------------
+PIVOT   K slots hold real capacity but greedy staging cannot reach it. Joint optimization is the method; boosting is dead.
+        Check the per-k column too: a curve that flattens after k=2 caps useful ensemble depth regardless of the verdict above.
+        Reminder: every number here uses gold labels. These are ceilings, not achievable scores.
+============================================================================================
+
+wrote results/wp1_nfcorpus_seed1.json
+finished 2026-08-17 13:48:55 (18.5 min total)
+logging to results/wp1_nfcorpus_seed2.log
+started 2026-08-17 13:48:59
+loading intfloat/e5-large-v2 on cuda (float32)
+
+Loading weights:   0%|          | 0/391 [00:00<?, ?it/s]
+Loading weights: 100%|##########| 391/391 [00:00<00:00, 9151.58it/s]
+  d=1024   token_norm=1.4409   |s|=0.7204 (0.5x)
+
+loading BEIR/nfcorpus (test)
+  3633 docs   323 queries
+
+self-check (max abs err, want < 1e-4):
+  [ok  ] identity_vs_hf             0.00e+00
+  [ok  ] batch_invariance           2.44e-06
+  [ok  ] batch_invariance_steered   2.50e-06
+
+loading cached corpus embeddings from results/cache/nfcorpus_intfloat_e5-large-v2_float32.pt
+  corpus matrix (3633, 1024) float32 = 0.01 GB on cuda
+
+============================================================================================
+ensemble depth K=8  (steps=200 lr=0.05 temp=0.02 |s|=0.5x, 64 queries per optimization batch)
+============================================================================================
+  arm0   nDCG@10=0.3463  R@20=0.2039  R@100=0.3156  MRR@10=0.5487
+         [0s]
+    [greedy@1] 64/323 queries   loss=0.1855   24s elapsed, ~95s left
+    [greedy@1] 128/323 queries   loss=0.1694   37s elapsed, ~57s left
+    [greedy@1] 192/323 queries   loss=0.1943   51s elapsed, ~35s left
+    [greedy@1] 256/323 queries   loss=0.2244   68s elapsed, ~18s left
+    [greedy@1] 320/323 queries   loss=0.2840   86s elapsed, ~1s left
+    [greedy@1] 323/323 queries   loss=0.1041   91s elapsed, ~0s left
+  greedy@1 nDCG@10=0.6274  R@20=0.3732  R@100=0.4854  MRR@10=0.9985
+         [91s]
+    [greedy@2] 64/323 queries   loss=0.0636   24s elapsed, ~98s left
+    [greedy@2] 128/323 queries   loss=0.0704   38s elapsed, ~59s left
+    [greedy@2] 192/323 queries   loss=0.0629   53s elapsed, ~36s left
+    [greedy@2] 256/323 queries   loss=0.0689   70s elapsed, ~18s left
+    [greedy@2] 320/323 queries   loss=0.0990   88s elapsed, ~1s left
+    [greedy@2] 323/323 queries   loss=0.0345   93s elapsed, ~0s left
+  greedy@2 nDCG@10=0.6332  R@20=0.3759  R@100=0.4873  MRR@10=0.9985
+         [93s]
+    [greedy@3] 64/323 queries   loss=0.0333   25s elapsed, ~101s left
+    [greedy@3] 128/323 queries   loss=0.0301   40s elapsed, ~61s left
+    [greedy@3] 192/323 queries   loss=0.0353   55s elapsed, ~37s left
+    [greedy@3] 256/323 queries   loss=0.0337   73s elapsed, ~19s left
+    [greedy@3] 320/323 queries   loss=0.0406   91s elapsed, ~1s left
+    [greedy@3] 323/323 queries   loss=0.0128   96s elapsed, ~0s left
+  greedy@3 nDCG@10=0.6341  R@20=0.3802  R@100=0.4850  MRR@10=0.9985
+         [96s]
+    [greedy@4] 64/323 queries   loss=0.0185   25s elapsed, ~103s left
+    [greedy@4] 128/323 queries   loss=0.0164   40s elapsed, ~62s left
+    [greedy@4] 192/323 queries   loss=0.0246   56s elapsed, ~38s left
+    [greedy@4] 256/323 queries   loss=0.0193   74s elapsed, ~19s left
+    [greedy@4] 320/323 queries   loss=0.0222   93s elapsed, ~1s left
+    [greedy@4] 323/323 queries   loss=0.0076   98s elapsed, ~0s left
+  greedy@4 nDCG@10=0.6318  R@20=0.3797  R@100=0.4817  MRR@10=0.9985
+         [98s]
+    [greedy@5] 64/323 queries   loss=0.0128   26s elapsed, ~107s left
+    [greedy@5] 128/323 queries   loss=0.0111   42s elapsed, ~64s left
+    [greedy@5] 192/323 queries   loss=0.0192   57s elapsed, ~39s left
+    [greedy@5] 256/323 queries   loss=0.0123   76s elapsed, ~20s left
+    [greedy@5] 320/323 queries   loss=0.0133   96s elapsed, ~1s left
+    [greedy@5] 323/323 queries   loss=0.0051   101s elapsed, ~0s left
+  greedy@5 nDCG@10=0.6336  R@20=0.3787  R@100=0.4809  MRR@10=0.9985
+         [101s]
+    [greedy@6] 64/323 queries   loss=0.0081   26s elapsed, ~107s left
+    [greedy@6] 128/323 queries   loss=0.0070   43s elapsed, ~65s left
+    [greedy@6] 192/323 queries   loss=0.0169   58s elapsed, ~40s left
+    [greedy@6] 256/323 queries   loss=0.0086   78s elapsed, ~20s left
+    [greedy@6] 320/323 queries   loss=0.0093   98s elapsed, ~1s left
+    [greedy@6] 323/323 queries   loss=0.0034   103s elapsed, ~0s left
+  greedy@6 nDCG@10=0.6333  R@20=0.3769  R@100=0.4817  MRR@10=0.9985
+         [103s]
+    [greedy@7] 64/323 queries   loss=0.0069   27s elapsed, ~109s left
+    [greedy@7] 128/323 queries   loss=0.0054   44s elapsed, ~67s left
+    [greedy@7] 192/323 queries   loss=0.0153   61s elapsed, ~42s left
+    [greedy@7] 256/323 queries   loss=0.0059   82s elapsed, ~21s left
+    [greedy@7] 320/323 queries   loss=0.0071   102s elapsed, ~1s left
+    [greedy@7] 323/323 queries   loss=0.0030   107s elapsed, ~0s left
+  greedy@7 nDCG@10=0.6354  R@20=0.3779  R@100=0.4785  MRR@10=0.9985
+         [107s]
+    [greedy@8] 64/323 queries   loss=0.0048   27s elapsed, ~109s left
+    [greedy@8] 128/323 queries   loss=0.0036   45s elapsed, ~68s left
+    [greedy@8] 192/323 queries   loss=0.0143   62s elapsed, ~43s left
+    [greedy@8] 256/323 queries   loss=0.0046   83s elapsed, ~22s left
+    [greedy@8] 320/323 queries   loss=0.0058   104s elapsed, ~1s left
+    [greedy@8] 323/323 queries   loss=0.0020   109s elapsed, ~0s left
+  greedy@8 nDCG@10=0.6357  R@20=0.3796  R@100=0.4762  MRR@10=0.9985
+         [109s]
+    [joint@2] 64/323 queries   loss=0.0489   24s elapsed, ~98s left
+    [joint@2] 128/323 queries   loss=0.0520   38s elapsed, ~58s left
+    [joint@2] 192/323 queries   loss=0.0527   53s elapsed, ~36s left
+    [joint@2] 256/323 queries   loss=0.0631   70s elapsed, ~18s left
+    [joint@2] 320/323 queries   loss=0.0655   88s elapsed, ~1s left
+    [joint@2] 323/323 queries   loss=0.0340   93s elapsed, ~0s left
+  joint@2 nDCG@10=0.6298  R@20=0.3742  R@100=0.4917  MRR@10=0.9985
+         [93s]
+    [joint@4] 64/323 queries   loss=0.0165   25s elapsed, ~102s left
+    [joint@4] 128/323 queries   loss=0.0170   40s elapsed, ~61s left
+    [joint@4] 192/323 queries   loss=0.0275   55s elapsed, ~38s left
+    [joint@4] 256/323 queries   loss=0.0190   74s elapsed, ~19s left
+    [joint@4] 320/323 queries   loss=0.0305   92s elapsed, ~1s left
+    [joint@4] 323/323 queries   loss=0.0098   97s elapsed, ~0s left
+  joint@4 nDCG@10=0.6385  R@20=0.3813  R@100=0.4946  MRR@10=0.9985
+         [97s]
+    [joint@8] 64/323 queries   loss=0.0068   27s elapsed, ~109s left
+    [joint@8] 128/323 queries   loss=0.0077   45s elapsed, ~68s left
+    [joint@8] 192/323 queries   loss=0.0186   62s elapsed, ~42s left
+    [joint@8] 256/323 queries   loss=0.0077   83s elapsed, ~22s left
+    [joint@8] 320/323 queries   loss=0.0204   104s elapsed, ~1s left
+    [joint@8] 323/323 queries   loss=0.0060   110s elapsed, ~0s left
+  joint@8 nDCG@10=0.6418  R@20=0.3844  R@100=0.4965  MRR@10=0.9985
+         [110s]
+
+============================================================================================
+depth       greedy     joint   greedy gain   vs prev
+k=1         0.6274        --       +0.0000          
+k=2         0.6332    0.6298       +0.0058   +0.0058
+k=3         0.6341        --       +0.0067   +0.0010
+k=4         0.6318    0.6385       +0.0044   -0.0024
+k=5         0.6336        --       +0.0062   +0.0018
+k=6         0.6333        --       +0.0059   -0.0003
+k=7         0.6354        --       +0.0080   +0.0021
+k=8         0.6357    0.6418       +0.0083   +0.0003
+--------------------------------------------------------------------------------------------
+headroom  greedy@1 - arm0            +0.2811 nDCG@10
+depth     greedy@8 - greedy@1        +0.0083
+ceiling   joint@8  - greedy@1        +0.0144
+capture   depth / ceiling            57.8%
+--------------------------------------------------------------------------------------------
+GO      greedy staging recovers most of the joint ceiling. Boosting is alive -- next question is the amortization gap.
+        Check the per-k column too: a curve that flattens after k=2 caps useful ensemble depth regardless of the verdict above.
+        Reminder: every number here uses gold labels. These are ceilings, not achievable scores.
+============================================================================================
+
+wrote results/wp1_nfcorpus_seed2.json
+finished 2026-08-17 14:07:30 (18.5 min total)a
