@@ -1,0 +1,58 @@
+logging to results/wp0_nonlinearity.log
+started 2026-08-12 00:21:09
+loading intfloat/e5-large-v2 on cpu (float32)
+Loading weights:   0%|          | 0/391 [00:00<?, ?it/s]Loading weights: 100%|##########| 391/391 [00:00<00:00, 19793.53it/s]
+  d=1024   mean token-embedding norm=1.4409
+  64 texts   pool_include_steer=False
+
+self-check (max abs err, want < 1e-4):
+  [ok  ] identity_vs_hf             0.00e+00
+  [ok  ] batch_invariance           3.22e-06
+  [ok  ] batch_invariance_steered   2.93e-06
+
+================================================================================================
+pre-normalization deltas, slot-matched baselines (affine encoder => rho == 0)
+dist     |s|/tok   rho_sum   rho_cat   cos_sum   cos_cat   |D|/|e0|  slotbias
+================================================================================================
+gauss       0.25    0.7423    0.3481    0.6731    0.9145     0.1176    0.0815   [32s]
+gauss       0.50    0.4949    0.3786    0.8139    0.8943     0.2457    0.0815   [38s]
+gauss       1.00    0.4627    0.3552    0.8547    0.9145     0.2768    0.0815   [60s]
+gauss       2.00    0.4818    0.3227    0.8315    0.9331     0.2705    0.0815   [60s]
+gauss       4.00    0.4982    0.2799    0.8106    0.9505     0.2631    0.0815   [52s]
+token       0.25    0.5550    0.3315    0.7235    0.9142     0.2445    0.0815   [53s]
+token       0.50    0.5212    0.3462    0.7571    0.9068     0.2616    0.0815   [67s]
+token       1.00    0.5214    0.3377    0.7584    0.9112     0.2714    0.0815   [60s]
+token       2.00    0.5156    0.3192    0.7646    0.9218     0.2775    0.0815   [54s]
+token       4.00    0.5113    0.2739    0.7723    0.9446     0.2904    0.0815   [56s]
+------------------------------------------------------------------------------------------------
+same draws, measured after L2 normalization (what retrieval sees; inflated by the projection itself)
+gauss       0.25    0.7417    0.3480    0.6739    0.9147
+gauss       0.50    0.4949    0.3784    0.8142    0.8946
+gauss       1.00    0.4628    0.3551    0.8549    0.9147
+gauss       2.00    0.4819    0.3226    0.8317    0.9333
+gauss       4.00    0.4983    0.2799    0.8109    0.9507
+token       0.25    0.5549    0.3314    0.7240    0.9145
+token       0.50    0.5212    0.3462    0.7579    0.9072
+token       1.00    0.5216    0.3377    0.7593    0.9117
+token       2.00    0.5158    0.3192    0.7653    0.9222
+token       4.00    0.5114    0.2738    0.7728    0.9448
+
+reachable delta-space rank per input (256 random s, ceiling = 256):
+  gauss   |s|= 0.25x   PR=   4.61   k90= 42.5  k95= 71.8  k99=143.0   top1_energy=0.450   [14s]
+  gauss   |s|= 0.50x   PR=   9.25   k90= 86.2  k95=120.0  k99=190.0   top1_energy=0.320   [14s]
+  gauss   |s|= 1.00x   PR=  10.13   k90= 81.0  k95=110.8  k99=180.0   top1_energy=0.306   [14s]
+  gauss   |s|= 2.00x   PR=  10.43   k90= 82.5  k95=113.0  k99=182.2   top1_energy=0.301   [15s]
+  gauss   |s|= 4.00x   PR=  10.63   k90= 84.5  k95=116.5  k99=185.5   top1_energy=0.297   [14s]
+  token   |s|= 0.25x   PR=  15.71   k90=109.0  k95=143.5  k99=202.5   top1_energy=0.242   [16s]
+  token   |s|= 0.50x   PR=  18.96   k90=118.5  k95=151.2  k99=203.8   top1_energy=0.221   [18s]
+  token   |s|= 1.00x   PR=  18.76   k90=119.5  k95=152.8  k99=206.2   top1_energy=0.222   [18s]
+  token   |s|= 2.00x   PR=  17.57   k90=119.8  k95=153.0  k99=208.0   top1_energy=0.229   [16s]
+  token   |s|= 4.00x   PR=  16.04   k90=120.5  k95=154.5  k99=210.0   top1_energy=0.241   [15s]
+
+================================================================================================
+GATE   max rho_sum = 0.7423    max rho_cat = 0.3786    max PR = 18.96
+GO     single-slot map is nonlinear and the reachable set is high-rank: stages can add expressivity. Proceed to WP1.
+================================================================================================
+
+wrote results/wp0_nonlinearity.json
+finished 2026-08-12 00:32:39 (11.5 min total)

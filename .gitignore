@@ -1,0 +1,9 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Corpus embedding caches: large, binary, and fully regenerable from the model
+# + dataset. Deleting one only costs a re-encode.
+results/cache/
+*.pt
