@@ -357,29 +357,50 @@ def _steer_from_raw(raw: torch.Tensor, scale: float | torch.Tensor,
     return s * scale
 
 
-def _nll(q: torch.Tensor, C: torch.Tensor, pos: list[list[int]], temp: float) -> torch.Tensor:
+def _nll(q: torch.Tensor, C: torch.Tensor, pos: list[list[int]], temp: float,
+         mode: str = "mean", held_out: list[list[int]] | None = None) -> torch.Tensor:
     """Multi-positive InfoNCE over the FULL corpus.
 
     Full-corpus softmax rather than mined negatives: the oracle is supposed to
     measure the ceiling against the same corpus the metrics are computed on. A
     fixed negative pool would let s overfit that pool and inflate the loss
     improvement without moving nDCG.
+
+    `mode` decides what "multi-positive" means, and on a densely-judged set like
+    NFCorpus (dozens of relevant docs per query) it changes what is being
+    measured entirely:
+
+        max   logsumexp over the positives, which is ~max over them. Minimized
+              by driving ONE positive to rank 1 and ignoring the rest -- it
+              optimizes MRR. Appropriate only when queries are single-positive.
+        mean  every positive pushed up against the shared denominator. This is
+              the one that tracks nDCG and recall.
     """
     # matmul in the corpus dtype (fp16 keeps a large index resident and hits
     # tensor cores), softmax upcast to fp32 -- logsumexp over a corpus-sized
     # axis in fp16 loses too much.
     logits = (F.normalize(q, dim=-1).to(C.dtype) @ C.T).float() / temp
+    if held_out is not None:
+        # Held-out positives must be neither positive nor negative while
+        # fitting. Leaving them in the denominator would actively push them
+        # DOWN, which would turn the generalization test into a rigged one.
+        mask = torch.zeros_like(logits, dtype=torch.bool)
+        for i, h in enumerate(held_out):
+            if h:
+                mask[i, h] = True
+        logits = logits.masked_fill(mask, float("-inf"))
     denom = torch.logsumexp(logits, dim=-1)
     loss = 0.0
     for i, p in enumerate(pos):
-        num = torch.logsumexp(logits[i, p], dim=-1)
+        num = (torch.logsumexp(logits[i, p], dim=-1) if mode == "max"
+               else logits[i, p].mean())
         loss = loss + (denom[i] - num)
     return loss / len(pos)
 
 
 def optimize_arm(enc, q_ids_tok, C, positives, n_slots, trainable, scale,
                  steps, lr, temp, batch_size, free_norm, init_raw=None,
-                 frozen=None, seed=0, label=""):
+                 frozen=None, seed=0, label="", loss_mode="mean", held_out=None):
     """Optimize the steering slots listed in `trainable` for every query.
 
     Queries are independent, so a batch of them is optimized simultaneously --
@@ -408,6 +429,7 @@ def optimize_arm(enc, q_ids_tok, C, positives, n_slots, trainable, scale,
         sl = slice(i, min(i + batch_size, Q))
         ids = q_ids_tok[sl]
         pos = positives[sl]
+        ho = None if held_out is None else held_out[sl]
         blk = raw[sl].clone().requires_grad_(True)
         opt = torch.optim.Adam([blk], lr=lr)
 
@@ -424,7 +446,7 @@ def optimize_arm(enc, q_ids_tok, C, positives, n_slots, trainable, scale,
                     parts.append(torch.zeros_like(s[:, k:k + 1]))
             steer = torch.cat(parts, dim=1)
             e = enc.forward_ids(ids, steer=steer)
-            loss = _nll(e, C, pos, temp)
+            loss = _nll(e, C, pos, temp, mode=loss_mode, held_out=ho)
             loss.backward()
             opt.step()
 
@@ -494,6 +516,17 @@ def main():
                     help="depths at which to also run the joint ceiling "
                          "(default: just K; k=1 is shared with the greedy curve)")
     ap.add_argument("--skip-baseline", action="store_true")
+    ap.add_argument("--loss", default="mean", choices=["mean", "max"],
+                    help="multi-positive reduction. 'max' (logsumexp over positives) "
+                         "is minimized by driving ONE positive to rank 1, so it "
+                         "optimizes MRR and leaves recall behind on densely-judged "
+                         "sets. 'mean' pushes every positive up and tracks nDCG")
+    ap.add_argument("--holdout-positives", type=float, default=0.0,
+                    help="fraction of each query's relevant docs held out. s is "
+                         "fitted on the rest (held-out docs masked out of the loss "
+                         "entirely) and scored ONLY on the held-out ones. This is "
+                         "the test for whether steering generalizes within a query "
+                         "or just memorizes the documents it was shown")
     ap.add_argument("--zero-curve", action="store_true",
                     help="null control: evaluate k EMPTY slots for k=1..K with no "
                          "optimization at all. Any decline here is pure slot "
@@ -569,6 +602,41 @@ def main():
         q_texts = [q_texts[i] for i in keep]
         positives = [positives[i] for i in keep]
 
+    # ---- within-query split: fit on some positives, score on the rest ------ #
+    # A per-query oracle has nothing to generalize ACROSS queries, so the only
+    # split available without an amortized generator is WITHIN a query: fit s
+    # against half the relevant documents and ask whether the other half rose
+    # too. If it did, steering found something about the information need; if it
+    # did not, the headroom is just aiming at documents it was handed.
+    held_out = None
+    eval_qrels = qrels
+    fit_mask_rows = None
+    if args.holdout_positives > 0:
+        rng = np.random.default_rng(args.seed)
+        fit_pos, ev_pos, keep = [], [], []
+        for i, p in enumerate(positives):
+            if len(p) < 2:
+                continue                      # cannot split a single positive
+            perm = rng.permutation(len(p))
+            n_ev = max(1, min(len(p) - 1, int(round(len(p) * args.holdout_positives))))
+            ev = sorted(p[j] for j in perm[:n_ev])
+            ft = sorted(p[j] for j in perm[n_ev:])
+            fit_pos.append(ft)
+            ev_pos.append(ev)
+            keep.append(i)
+        dropped = len(positives) - len(keep)
+        q_ids = [q_ids[i] for i in keep]
+        q_texts = [q_texts[i] for i in keep]
+        positives, held_out, fit_mask_rows = fit_pos, ev_pos, fit_pos
+        row_to_did = {i: d for d, i in did_to_row.items()}
+        eval_qrels = {q: {row_to_did[r]: qrels[q][row_to_did[r]] for r in ev}
+                      for q, ev in zip(q_ids, ev_pos)}
+        n_fit = float(np.mean([len(p) for p in fit_pos]))
+        n_ev = float(np.mean([len(p) for p in ev_pos]))
+        print(f"\nheld-out split: {args.holdout_positives:.0%} of positives\n"
+              f"  {len(q_ids)} queries kept ({dropped} dropped: <2 positives)\n"
+              f"  mean {n_fit:.1f} positives fitted, {n_ev:.1f} scored")
+
     q_tok = enc.tokenize([args.query_prefix + t for t in q_texts])
     results = {"config": vars(args) | {"d": enc.d, "token_norm": tnorm,
                                        "n_docs": len(doc_ids), "n_queries": len(q_ids),
@@ -577,15 +645,21 @@ def main():
 
     def run_eval(name, emb):
         with torch.no_grad():
-            sc = emb.to(enc.device, cdt) @ C.T
-            m = evaluate(sc.float(), doc_ids, q_ids, qrels)
+            sc = (emb.to(enc.device, cdt) @ C.T).float()
+            if fit_mask_rows is not None:
+                # fitted positives must not occupy top-k slots they were
+                # explicitly optimized into -- drop them from the candidate set
+                for i, ft in enumerate(fit_mask_rows):
+                    sc[i, ft] = float("-inf")
+            m = evaluate(sc, doc_ids, q_ids, eval_qrels)
         results["arms"][name] = m
         print(f"  {name:<6} nDCG@10={m['ndcg@10']:.4f}  R@20={m['recall@20']:.4f}  "
               f"R@100={m['recall@100']:.4f}  MRR@10={m['mrr@10']:.4f}")
         return m
 
     common = dict(scale=abs_scales, steps=args.steps, lr=args.lr, temp=args.temp,
-                  batch_size=args.batch_size, free_norm=args.free_norm, seed=args.seed)
+                  batch_size=args.batch_size, free_norm=args.free_norm, seed=args.seed,
+                  loss_mode=args.loss, held_out=held_out)
 
     joint_at = sorted(set(args.joint_at or [K]) - {1})   # k=1 shared with greedy
     print("\n" + "=" * 92)
