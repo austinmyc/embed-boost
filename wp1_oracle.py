@@ -434,6 +434,11 @@ def main():
                     help="depths at which to also run the joint ceiling "
                          "(default: just K; k=1 is shared with the greedy curve)")
     ap.add_argument("--skip-baseline", action="store_true")
+    ap.add_argument("--zero-curve", action="store_true",
+                    help="null control: evaluate k EMPTY slots for k=1..K with no "
+                         "optimization at all. Any decline here is pure slot "
+                         "perturbation, and must be subtracted from the greedy "
+                         "curve before reading it as a staging result")
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--cache-dir", default="results/cache")
     ap.add_argument("--out", default=None)
@@ -534,6 +539,21 @@ def main():
         run_eval("arm0", e0)
         print(f"         [{time.time() - t0:.0f}s]")
 
+    # ---- null curve: k empty slots, nothing optimized --------------------- #
+    # WP0 measured slot_bias at ~8% of the embedding norm for a SINGLE empty
+    # attended position. Stacking k of them moves the embedding on its own, so a
+    # declining greedy curve is only evidence about staging to the extent it
+    # declines faster than this.
+    if args.zero_curve:
+        for k in range(1, K + 1):
+            with torch.no_grad():
+                embs = []
+                for i in range(0, len(q_tok), args.batch_size):
+                    ids = q_tok[i:i + args.batch_size]
+                    z = torch.zeros(len(ids), k, enc.d, device=enc.device)
+                    embs.append(F.normalize(enc.forward_ids(ids, steer=z), dim=-1).cpu())
+                run_eval(f"zero@{k}", torch.cat(embs, dim=0))
+
     # ---- greedy curve: the boosting ensemble itself ----------------------- #
     # Stage k is fitted against stages 1..k-1 held frozen. Earlier stages are
     # never revisited, which is what makes this boosting rather than joint
@@ -559,18 +579,21 @@ def main():
     a = results["arms"]
     m = "ndcg@10"
     print("\n" + "=" * 92)
-    print(f"{'depth':<8}{'greedy':>10}{'joint':>10}{'greedy gain':>14}{'vs prev':>10}")
-    prev = None
+    print(f"{'depth':<8}{'greedy':>10}{'joint':>10}{'zero':>10}"
+          f"{'greedy gain':>14}{'net of zero':>13}")
     for k in range(1, K + 1):
         gk = a.get(f"greedy@{k}", {}).get(m)
         jk = a.get(f"joint@{k}", {}).get(m)
+        zk = a.get(f"zero@{k}", {}).get(m)
         if gk is None:
             continue
         gain = gk - a["greedy@1"][m]
-        step = "" if prev is None else f"{gk - prev:+.4f}"
+        # the greedy curve minus the null curve: what staging did beyond simply
+        # occupying k positions
+        net = (f"{gain - (zk - a['zero@1'][m]):+.4f}"
+               if zk is not None and "zero@1" in a else "--")
         print(f"k={k:<6}{gk:>10.4f}{(f'{jk:.4f}' if jk else '--'):>10}"
-              f"{gain:>+14.4f}{step:>10}")
-        prev = gk
+              f"{(f'{zk:.4f}' if zk else '--'):>10}{gain:>+14.4f}{net:>13}")
 
     if "arm0" in a and f"joint@{K}" in a and K > 1:
         headroom = a["greedy@1"][m] - a["arm0"][m]
