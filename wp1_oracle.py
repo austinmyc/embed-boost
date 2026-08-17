@@ -536,6 +536,51 @@ def optimize_global(enc, q_tok, C, positives, n_slots, trainable, scale, steps, 
     return raw.detach()
 
 
+def optimize_output_space(q0, C, positives, budget, steps, lr, temp, batch_size,
+                          seed=0, loss_mode="mean", label=""):
+    """Baseline: a residual vector in the OUTPUT embedding space.
+
+    This is the prior-art comparison (TTT-Embed, arXiv 2608.12569, learns
+    x~_q = x_q + a*v_g in output space). It is the control that decides whether
+    input-space steering earns its complexity, because output space is strictly
+    MORE expressive: v can reach any point in R^d, whereas an input-space s is
+    confined to the encoder's reachable set -- which WP0 measured at PR ~ 19,
+    k90 ~ 118 out of 1024 dimensions.
+
+    Note this baseline is single-stage by necessity, not by omission:
+    x_q + a1*v1 + ... + aK*vK is x_q + (one vector), so K output-space stages
+    ARE one stage. The only thing depth buys here is a bigger norm budget, which
+    a single stage replicates by being given a bigger budget. Staging can only
+    mean anything where a nonlinearity sits between the stages -- which is the
+    entire argument for doing this in input space.
+
+    No encoder forward pass is involved, so this runs in seconds.
+    """
+    d, dev = q0.shape[1], C.device
+    g = torch.Generator().manual_seed(seed)
+    raw = torch.randn(1, d, generator=g).to(dev).requires_grad_(True)
+    opt = torch.optim.Adam([raw], lr=lr)
+    Q = q0.shape[0]
+    rng = np.random.default_rng(seed)
+    order, ptr = rng.permutation(Q), 0
+    q0d = q0.to(dev)
+    t0 = time.time()
+    for step in range(steps):
+        if ptr + batch_size > Q:
+            order, ptr = rng.permutation(Q), 0
+        idx = order[ptr:ptr + batch_size]
+        ptr += batch_size
+        opt.zero_grad(set_to_none=True)
+        v = F.normalize(raw, dim=-1) * budget
+        loss = _nll(q0d[idx] + v, C, [positives[i] for i in idx], temp, mode=loss_mode)
+        loss.backward()
+        opt.step()
+        if (step + 1) % max(1, steps // 4) == 0:
+            print(f"    [{label}] step {step + 1}/{steps}   loss={loss.item():.4f}   "
+                  f"{time.time() - t0:.0f}s")
+    return (F.normalize(raw, dim=-1) * budget).detach()
+
+
 @torch.no_grad()
 def apply_global(enc, q_tok, raw, n_slots, active, scale, free_norm, batch_size,
                  frozen=None):
@@ -607,6 +652,15 @@ def main():
                          "labels were never touched. The only split with no label "
                          "leakage into the evaluated queries")
     ap.add_argument("--train-split", default="train")
+    ap.add_argument("--output-baseline", action="store_true",
+                    help="fit a residual vector in OUTPUT embedding space under the "
+                         "same split and a matched perturbation budget. This is the "
+                         "prior-art control (TTT-Embed): output space is strictly "
+                         "more expressive, so input-space steering has to beat it to "
+                         "be worth the deeper model access it needs")
+    ap.add_argument("--output-scale", type=float, default=None,
+                    help="override the output-space budget (default: matched to the "
+                         "displacement input-space steering produced on train queries)")
     ap.add_argument("--global-steps", type=int, default=1000,
                     help="minibatch steps for --global-s (one shared vector needs "
                          "more steps than a per-query one, but each is cheap)")
@@ -795,6 +849,8 @@ def main():
             emb = apply_global(enc, q_tok, raw, k, {k - 1}, abs_scales,
                                args.free_norm, args.batch_size, frozen=dict(gfrozen))
             run_eval(f"global_greedy@{k}", emb)
+            if k == 1:
+                gfirst_raw = raw
             gfrozen[k - 1] = _steer_from_raw(
                 raw[:, k - 1],
                 (abs_scales[k - 1] if not isinstance(abs_scales, (int, float))
@@ -810,6 +866,32 @@ def main():
             run_eval(f"global_joint@{k}", emb)
             print(f"         [{time.time() - t0:.0f}s]")
 
+        # ---- output-space baseline, budget-matched to input-space ---------- #
+        if args.output_baseline:
+            with torch.no_grad():
+                q0_tr = torch.cat(
+                    [F.normalize(enc.forward_ids(tr_tok[i:i + args.batch_size]),
+                                 dim=-1).cpu()
+                     for i in range(0, len(tr_tok), args.batch_size)], dim=0)
+                # budget = the displacement input-space steering actually
+                # produced on the SAME queries, measured post-normalization,
+                # so neither method gets a bigger perturbation than the other
+                s1 = apply_global(enc, tr_tok, gfirst_raw, 1, {0}, abs_scales,
+                                  args.free_norm, args.batch_size)
+                measured = (s1 - q0_tr).norm(dim=-1).mean().item()
+            budget = args.output_scale if args.output_scale else measured
+            print(f"\n  input-space displacement on train queries: {measured:.4f}"
+                  f"   output-space budget: {budget:.4f}"
+                  f"{' (from --output-scale)' if args.output_scale else ' (matched)'}")
+            t0 = time.time()
+            v = optimize_output_space(q0_tr, C, tr_pos, budget,
+                                      steps=args.global_steps, lr=args.lr,
+                                      temp=args.temp, batch_size=args.batch_size,
+                                      seed=args.seed, loss_mode=args.loss,
+                                      label="output")
+            run_eval("output_space", F.normalize(e0.to(C.device) + v, dim=-1).cpu())
+            print(f"         [{time.time() - t0:.0f}s]")
+
         a = results["arms"]
         m = "ndcg@10"
         print("\n" + "=" * 92)
@@ -820,14 +902,37 @@ def main():
             if gk is not None:
                 print(f"k={k:<6}{gk:>10.4f}{(f'{jk:.4f}' if jk else '--'):>10}"
                       f"{gk - a['arm0'][m]:>+12.4f}")
+        best_in = max(v[m] for k, v in a.items() if k.startswith("global_"))
         results["verdict"] = {
-            "transfer_ndcg": a[f"global_greedy@1"][m] - a["arm0"][m],
-            "depth_gain": a[f"global_greedy@{K}"][m] - a["global_greedy@1"][m], "K": K}
+            "transfer_ndcg": a["global_greedy@1"][m] - a["arm0"][m],
+            "depth_gain": a[f"global_greedy@{K}"][m] - a["global_greedy@1"][m],
+            "best_input_space": best_in, "K": K}
         print("-" * 92)
         print(f"transfer  global_greedy@1 - arm0   "
               f"{results['verdict']['transfer_ndcg']:+.4f} nDCG@10")
         print(f"depth     @{K} - @1                 "
               f"{results['verdict']['depth_gain']:+.4f}")
+        if "output_space" in a:
+            ov = a["output_space"][m]
+            adv = best_in - ov
+            results["verdict"]["output_space"] = ov
+            results["verdict"]["input_advantage"] = adv
+            print(f"output    output_space - arm0      {ov - a['arm0'][m]:+.4f}")
+            print(f"ADVANTAGE best input-space - output {adv:+.4f}")
+            print("-" * 92)
+            if adv > 0.005:
+                print("Input space wins at a matched budget. The manifold "
+                      "constraint is acting as a regularizer rather than a "
+                      "handicap -- that is the contribution, and it is testable "
+                      "against the prior art directly.")
+            elif adv < -0.005:
+                print("Output space wins. Input-space steering is a strictly "
+                      "less expressive mechanism that also needs deeper model "
+                      "access, so it is dominated. The result to write up is the "
+                      "analysis, not the method.")
+            else:
+                print("A tie at a matched budget. Input-space steering buys "
+                      "nothing over the simpler, more deployable baseline.")
         print("        No test-query labels were used at any point. Unlike the "
               "oracle arms, these ARE achievable numbers.")
         print("=" * 92)
